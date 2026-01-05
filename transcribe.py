@@ -17,18 +17,23 @@ except Exception as e:
     exit(1)
 
 
-def transcrire_audio(chemin_fichier):
+def transcrire_audio(chemin_fichier, vocab=False):
     """
     Prend un fichier WAV et retourne le texte en Français.
     """
     if not os.path.exists(chemin_fichier):
         return "❌ Erreur : Fichier introuvable."
-
+    dico = None
+    if vocab:  # avoir une liste de mots clés
+        dico = config.get_prompt_whisper()
+        print(f"On a le dictionnaire avec ces mots-clés : {dico}")
     try:
         segments, info = model.transcribe(
             chemin_fichier,
             language="fr", # on force le français ici
-            beam_size=5 # precision
+            beam_size=5, # precision
+            temperature=0.3,
+            initial_prompt=dico
         )
         # avoir le texte complet
         texte_complet = " ".join([segment.text for segment in segments])
